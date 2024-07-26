@@ -1,62 +1,37 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import "./CountrieSearch.css";
 
-const CountryCard = ({ data }) => {
-  return (
-    <div className="countryCard">
-      <img src={data.flags.svg} alt={data.name.common} />
-      <h2>{data.name.common}</h2>
-    </div>
-  );
-};
-
-const CountrieSearch = () => {
-  const [countryData, setCountryData] = useState([]);
-  const [filterCountryData, setFilterCountryData] = useState([]);
-  const [searchText, setSearchText] = useState("");
-
-  const fetchCountryData = async () => {
-    try {
-      let response = await axios.get("https://restcountries.com/v3.1/all");
-      setCountryData(response.data);
-      // setFilterCountryData(response.data);
-    } catch (error) {
-      console.log("Error: ", error);
-    }
-  };
-
-  var filteredData = countryData.filter((country) =>
-    country.name.common.toLowerCase().includes(searchText.toLowerCase())
-  );
-  // console.log(filteredData);
-
-  useEffect(() => {
-    fetchCountryData();
-  }, []);
-  return (
-    <>
-      <div>
-        <div className="inputWrapper">
-          <input
-            type="text"
-            onChange={(e) => setSearchText(e.target.value)}
-            value={searchText}
-          />
-        </div>
-
-        <div className="wrapper">
-          {searchText === ""
-            ? countryData.map((country) => (
-                <CountryCard key={country.name.common} data={country} />
-              ))
-            : filteredData.map((country) => (
-                <CountryCard key={country.name.common} data={country} />
-              ))}
-        </div>
+function Countries() {
+    const [countries, setCountries] = useState([]);
+  
+    useEffect(() => {
+      const fetchData = async () => {
+        try {
+          const response = await fetch("https://restcountries.com/v3.1/all");
+          const data = await response.json();
+          setCountries(data);
+        } catch (error) {
+          console.error("Error fetching data: ", error);
+        }
+      };
+  
+      fetchData();
+    }, []);
+  
+    return (
+      <div className="container">
+        {countries.map((c) => (
+          <div key={c.cca3} className="card">
+            <img
+              src={c.flags.png}
+              alt={`Flag of ${c.name.common}`}
+              className="image"
+            />
+            <h2>{c.name.common}</h2>
+          </div>
+        ))}
       </div>
-    </>
-  );
-};
-
-export default CountrieSearch;
+    );
+  }
+  
+  export default Countries;
